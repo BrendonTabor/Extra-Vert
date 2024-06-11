@@ -8,4 +8,5 @@ public class Plant
     public string City { get;set; }
     public string Zip { get;set; }
     public bool Sold { get;set ; }
+    public DateTime AvailableUntil { get;set;}
 }

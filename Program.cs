@@ -54,6 +54,8 @@ List<Plant> plantList = new List<Plant>()
     
 };
 
+Random random = new Random();
+
 Console.WriteLine("Here are some plants sucka!");
 
 void listPlants()
@@ -81,6 +83,9 @@ void addPlant()
     Console.WriteLine("Enter zipcode.");
     string zip = Console.ReadLine();
 
+    DateTime date = new DateTime();
+    
+
     Plant PlantToAdd = new Plant()
     {
         Species = name,
@@ -101,6 +106,80 @@ void addPlant()
     listPlants();
 }
 
+void AdoptPlant()
+{
+    for(int i = 0; i < plantList.Count; i++)
+    {
+        if(!plantList[i].Sold)
+        {
+            Console.WriteLine($"{i}. {plantList[i].Species}");
+        }
+    }
+    //WriteLine choose something
+    Console.WriteLine(@"
+    Please choose a plant to adopt.
+    ");
+
+    //Readline and store the input
+    int choice = int.Parse(Console.ReadLine());
+
+    //Change sold prop
+    plantList[choice].Sold = true;
+
+    //Give user feedback
+    Console.WriteLine($"Congratulations you've adopted a {plantList[choice].Species}. Carry on...");
+}
+
+void DeletePlant()
+{
+    listPlants();
+
+    Console.WriteLine("Which plant do you want to delete");
+
+    int choice = int.Parse(Console.ReadLine());
+
+    plantList.RemoveAt(choice -1);
+
+    Console.WriteLine("Delete successful!");
+}
+
+int getRandomIndex(int len)
+{
+    return random.Next(len);
+}
+
+void ListRandomPlant()
+{
+    int length = plantList.Count;
+    int randomIndex = getRandomIndex(length);
+
+    //Check first index
+    while(plantList[randomIndex].Sold != false)
+    {
+        randomIndex = getRandomIndex(length);      
+    }
+
+    Console.WriteLine($"{plantList[randomIndex].Species} in {plantList[randomIndex].City}, has a {plantList[randomIndex].LightNeeds} on the lightscale and costs {plantList[randomIndex].AskingPrice} to adopt.");
+    //if index plant is sold
+    //
+}
+
+void SearchPlants()
+{
+    Console.WriteLine(@"
+    Enter the maximum light requirement or your plant.
+    ");
+    int choice = int.Parse(Console.ReadLine());
+
+    foreach (Plant plant in plantList)
+    {
+        if (plant.LightNeeds <= choice)
+        {
+            Console.WriteLine($"{plant.Species}");
+        }
+    }
+}
+
 string choice = "";
 
 while(choice != "e")
@@ -111,8 +190,10 @@ while(choice != "e")
         b. Post a plant to be adopted
         c. Adopt a plant
         d. Delist a plant
-        e. Exit"
-        );
+        e. See random plant of the day
+        f. Search plants 
+        g. Exit
+        ");
 
 choice = Console.ReadLine();
 
@@ -127,14 +208,22 @@ choice = Console.ReadLine();
             break;
 
         case "c":
-            throw new NotImplementedException();
-            // break;
+            AdoptPlant();
+            break;
 
         case "d":
-            throw new NotImplementedException();
+            DeletePlant();
             break;
 
         case "e":
+            ListRandomPlant();
+            break;
+
+        case "f":
+            SearchPlants();
+            break;
+
+        case "g":
             Console.Clear();
             Console.WriteLine("Oy, fuck off.");
             break;
