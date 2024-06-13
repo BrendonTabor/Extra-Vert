@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using System.Diagnostics.Metrics;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.Win32.SafeHandles;
 
 List<Plant> plantList = new List<Plant>()
 {
@@ -9,7 +11,8 @@ List<Plant> plantList = new List<Plant>()
         AskingPrice = 5.00M,
         City = "Nashville",
         Zip = "37221",
-        Sold = false
+        Sold = false,
+        AvailableUntil = new DateTime(2024, 7, 23)
     },
 
     new Plant()
@@ -19,7 +22,8 @@ List<Plant> plantList = new List<Plant>()
         AskingPrice = 10.00M,
         City = "Portland",
         Zip = "97205",
-        Sold = true
+        Sold = true,
+        AvailableUntil = new DateTime(2025, 05, 12)
     },
 
     new Plant()
@@ -29,7 +33,8 @@ List<Plant> plantList = new List<Plant>()
         AskingPrice = 15.00M,
         City = "Phoenix",
         Zip = "85001",
-        Sold = false
+        Sold = false,
+        AvailableUntil = new DateTime(2027, 11, 22)
     },
 
     new Plant()
@@ -39,7 +44,8 @@ List<Plant> plantList = new List<Plant>()
         AskingPrice = 25.00M,
         City = "Miami",
         Zip = "33101",
-        Sold = false
+        Sold = false,
+        AvailableUntil = new DateTime(2025, 01, 05)
     },
 
     new Plant()
@@ -49,7 +55,8 @@ List<Plant> plantList = new List<Plant>()
         AskingPrice = 8.00M,
         City = "San Francisco",
         Zip = "94103",
-        Sold = true
+        Sold = true,
+        AvailableUntil = new DateTime(2026, 12, 03)
     }
     
 };
@@ -58,11 +65,18 @@ Random random = new Random();
 
 Console.WriteLine("Here are some plants sucka!");
 
+string PlantDetails(Plant plant)
+{
+    string plantString = $"{plant.Species} in {plant.City} {(plant.Sold ? "was sold" : "is available")} for {plant.AskingPrice}";
+
+    return plantString;
+}
+
 void listPlants()
 {
 for (int i = 0; i < plantList.Count; i++)
     {
-        Console.WriteLine($"{i + 1}. {plantList[i].Species} in {plantList[i].City} {(plantList[i].Sold ? "was sold" : "is available")} for {plantList[i].AskingPrice}");
+        Console.WriteLine($"{i + 1}. {PlantDetails(plantList[i])}");
     }
 }
 
@@ -84,7 +98,33 @@ void addPlant()
     string zip = Console.ReadLine();
 
     DateTime date = new DateTime();
-    
+    bool validInput = false;
+
+
+    // Create a variable to hold input
+    while(!validInput)
+    {
+        Console.WriteLine(@"
+        Enter a date your plant will be available until.
+        ");
+        try{
+            date = DateTime.Parse(Console.ReadLine());
+            validInput = true;
+        }
+        catch(FormatException ex)
+        {
+            Console.WriteLine(ex);
+            Console.WriteLine(@"
+            Please enter a date in the following format MM/DD/YYYY!
+            ");
+        }
+    }
+    // while variable is false
+    // check the date format
+    // error check using try/catch
+    // check the date format
+    // if correct set inut variable
+    // if incorrect prompt user to enter correct format
 
     Plant PlantToAdd = new Plant()
     {
@@ -110,7 +150,7 @@ void AdoptPlant()
 {
     for(int i = 0; i < plantList.Count; i++)
     {
-        if(!plantList[i].Sold)
+        if(!plantList[i].Sold && plantList[i].AvailableUntil > DateTime.Now)
         {
             Console.WriteLine($"{i}. {plantList[i].Species}");
         }
@@ -180,6 +220,103 @@ void SearchPlants()
     }
 }
 
+string GetLowestPriced()
+{
+    Plant lowestPriced = null;
+    decimal lowestPrice = 1000.00M;
+
+    foreach(Plant plant in plantList)
+    {
+        if(plant.AskingPrice < lowestPrice)
+        {
+            lowestPrice = plant.AskingPrice;
+            lowestPriced = plant;
+        }
+    }
+
+    return lowestPriced.Species;
+}
+
+int GetTotalNumberPlants()
+{  
+    int counter = 0;
+    foreach(Plant plant in plantList)
+    {
+        if(!plant.Sold && plant.AvailableUntil > DateTime.Now)
+        {
+            counter++;
+        }
+    }
+
+    return counter;
+    
+}
+
+string GetHighestLightNeedPlant()
+{
+    Plant highestLightNeed = null;
+
+    int lightNeed = 0;
+
+    foreach(Plant plant in plantList)
+    {
+        if(plant.LightNeeds > lightNeed)
+        {
+            highestLightNeed = plant;
+            lightNeed = plant.LightNeeds;
+        }
+    }
+    
+    return highestLightNeed.Species;
+}
+
+int GetAverageLightNeed()
+{
+    int counter = 0;
+
+    foreach(Plant plant in plantList)
+    {
+        counter += plant.LightNeeds;
+    }
+    
+    int average = counter / plantList.Count;
+
+    return average;
+}
+
+double GetPercentageAdopted()
+{
+    int numberAdopted = 0;
+    foreach(Plant plant in plantList)
+    {
+        if(plant.Sold)
+        {
+            numberAdopted++;
+        }
+    }
+
+    double percentage = ((double)numberAdopted / plantList.Count * 100);
+    return percentage;
+}
+
+
+void ViewStatistics()
+{
+    string lowestPriced = GetLowestPriced();
+    int totalPlants = GetTotalNumberPlants();
+    string highestLightNeeded = GetHighestLightNeedPlant();
+    int averageLightNeed = GetAverageLightNeed();
+    double percentageAdopted = GetPercentageAdopted();
+
+    Console.WriteLine(@$"Here are some plant statistics,
+    1. {lowestPriced} is the lowest priced plant.
+    2. There are a total of {totalPlants} plants listed for adoption.
+    3. {highestLightNeeded} is the plant with the most light need.
+    4. The average light need is {averageLightNeed}.
+    5. {percentageAdopted}% of plants listed are adopted.
+    ");
+}
+
 string choice = "";
 
 while(choice != "e")
@@ -191,8 +328,9 @@ while(choice != "e")
         c. Adopt a plant
         d. Delist a plant
         e. See random plant of the day
-        f. Search plants 
-        g. Exit
+        f. Search plants
+        g. View Statistics 
+        h. Exit
         ");
 
 choice = Console.ReadLine();
@@ -224,6 +362,10 @@ choice = Console.ReadLine();
             break;
 
         case "g":
+            ViewStatistics();
+            break;
+
+        case "h":
             Console.Clear();
             Console.WriteLine("Oy, fuck off.");
             break;
